@@ -12,7 +12,11 @@ mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
   .catch(err => console.log('MongoDB connection error:', err));
 
 const TodoSchema = new mongoose.Schema({
-  content: String
+  content: String,
+  completed: {
+    type: Boolean,
+    default: false
+  }
 });
 
 const Todo = mongoose.model('Todo', TodoSchema);
@@ -33,7 +37,8 @@ app.get('/todos', async (req, res) => {
 app.post('/todos', async (req, res) => {
   try {
     const todo = new Todo({
-      content: req.body.content
+      content: req.body.content,
+      completed: req.body.completed || false
     });
     await todo.save();
     res.json(todo);
@@ -55,7 +60,7 @@ app.delete('/todos/:id', async (req, res) => {
 
 app.put('/todos/:id', async (req, res) => {
   try {
-    const todo = await Todo.findByIdAndUpdate(req.params.id, { content: req.body.content }, { new: true });
+    const todo = await Todo.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(todo);
   } catch (error) {
     console.error('Error updating todo:', error);

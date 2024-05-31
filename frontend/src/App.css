@@ -67,6 +67,11 @@ ul li {
   align-items: center;
 }
 
+ul li.completed span {
+  text-decoration: line-through;
+  color: #999;
+}
+
 /* Buttons */
 .todo-buttons {
   display: flex;

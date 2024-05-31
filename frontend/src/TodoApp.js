@@ -42,6 +42,11 @@ function TodoApp() {
     setEditingText('');
   };
 
+  const toggleCompletion = async (todo) => {
+    const response = await axios.put(`http://localhost:3001/todos/${todo._id}`, { completed: !todo.completed });
+    setTodos(todos.map((t) => (t._id === todo._id ? response.data : t)));
+  };
+
   return (
     <div className="container">
       <h1>Todo List</h1>
@@ -56,7 +61,12 @@ function TodoApp() {
       </div>
       <ul>
         {todos.map((todo) => (
-          <li key={todo._id}>
+          <li key={todo._id} className={todo.completed ? 'completed' : ''}>
+            <input
+              type="checkbox"
+              checked={todo.completed}
+              onChange={() => toggleCompletion(todo)}
+            />
             {editingTodo === todo._id ? (
               <input
                 type="text"
@@ -64,7 +74,7 @@ function TodoApp() {
                 onChange={(e) => setEditingText(e.target.value)}
               />
             ) : (
-              todo.content
+              <span>{todo.content}</span>
             )}
             <div className="todo-buttons">
               {editingTodo === todo._id ? (
