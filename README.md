@@ -13,7 +13,7 @@ Cette application Todo List utilise une architecture à trois niveaux avec Mongo
 
     ```bash
     git clone https://github.com/Isosel26000/docker-tp.git
-    cd docker-todolist
+    cd docker-tp 
     ```
 
 2. Créez et démarrez les conteneurs Docker :
