@@ -1,0 +1,17 @@
+# Utiliser une image Node.js comme base
+FROM node:14
+
+# Définir le répertoire de travail dans le conteneur
+WORKDIR /usr/src/app
+
+# Installer create-react-app globalement
+RUN npm install -g create-react-app
+
+# Copier le script d'initialisation
+COPY create-react-app.sh /usr/src/app/create-react-app.sh
+
+# Donner les permissions d'exécution au script
+RUN chmod +x create-react-app.sh
+
+# Exécuter le script pour créer l'application React
+CMD ["./create-react-app.sh"]
