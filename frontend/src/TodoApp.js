@@ -1,95 +1,84 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './App.css';
 
-const TodoApp = () => {
+function TodoApp() {
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState('');
-  const [editTodo, setEditTodo] = useState(null);
-  const [editContent, setEditContent] = useState('');
+  const [editingTodo, setEditingTodo] = useState(null);
+  const [editingText, setEditingText] = useState('');
 
   useEffect(() => {
     fetchTodos();
   }, []);
 
   const fetchTodos = async () => {
-    try {
-      const response = await axios.get('http://localhost:3001/todos');
-      setTodos(response.data);
-    } catch (error) {
-      console.error('Error fetching todos:', error);
-    }
+    const response = await axios.get('http://localhost:3001/todos');
+    setTodos(response.data);
   };
 
   const addTodo = async () => {
-    try {
+    if (newTodo.trim()) {
       const response = await axios.post('http://localhost:3001/todos', { content: newTodo });
       setTodos([...todos, response.data]);
       setNewTodo('');
-    } catch (error) {
-      console.error('Error adding todo:', error);
     }
   };
 
   const deleteTodo = async (id) => {
-    try {
-      await axios.delete(`http://localhost:3001/todos/${id}`);
-      setTodos(todos.filter(todo => todo._id !== id));
-    } catch (error) {
-      console.error('Error deleting todo:', error);
-    }
+    await axios.delete(`http://localhost:3001/todos/${id}`);
+    setTodos(todos.filter((todo) => todo._id !== id));
   };
 
   const startEditing = (todo) => {
-    setEditTodo(todo);
-    setEditContent(todo.content);
+    setEditingTodo(todo._id);
+    setEditingText(todo.content);
   };
 
-  const updateTodo = async () => {
-    try {
-      const response = await axios.put(`http://localhost:3001/todos/${editTodo._id}`, { content: editContent });
-      setTodos(todos.map(todo => (todo._id === editTodo._id ? response.data : todo)));
-      setEditTodo(null);
-      setEditContent('');
-    } catch (error) {
-      console.error('Error updating todo:', error);
-    }
+  const editTodo = async (id) => {
+    const response = await axios.put(`http://localhost:3001/todos/${id}`, { content: editingText });
+    setTodos(todos.map((todo) => (todo._id === id ? response.data : todo)));
+    setEditingTodo(null);
+    setEditingText('');
   };
 
   return (
-    <div>
+    <div className="container">
       <h1>Todo List</h1>
-      <input
-        type="text"
-        value={newTodo}
-        onChange={(e) => setNewTodo(e.target.value)}
-        placeholder="Add a new todo"
-      />
-      <button onClick={addTodo}>Add</button>
+      <div className="todo-input">
+        <input
+          type="text"
+          placeholder="Add a new todo"
+          value={newTodo}
+          onChange={(e) => setNewTodo(e.target.value)}
+        />
+        <button onClick={addTodo}>Add</button>
+      </div>
       <ul>
         {todos.map((todo) => (
           <li key={todo._id}>
-            {editTodo && editTodo._id === todo._id ? (
-              <>
-                <input
-                  type="text"
-                  value={editContent}
-                  onChange={(e) => setEditContent(e.target.value)}
-                />
-                <button onClick={updateTodo}>Save</button>
-                <button onClick={() => setEditTodo(null)}>Cancel</button>
-              </>
+            {editingTodo === todo._id ? (
+              <input
+                type="text"
+                value={editingText}
+                onChange={(e) => setEditingText(e.target.value)}
+              />
             ) : (
-              <>
-                {todo.content}
-                <button onClick={() => startEditing(todo)}>Edit</button>
-                <button onClick={() => deleteTodo(todo._id)}>Delete</button>
-              </>
+              todo.content
             )}
+            <div className="todo-buttons">
+              {editingTodo === todo._id ? (
+                <button onClick={() => editTodo(todo._id)} className="edit-btn">Save</button>
+              ) : (
+                <button onClick={() => startEditing(todo)} className="edit-btn">Edit</button>
+              )}
+              <button onClick={() => deleteTodo(todo._id)} className="delete-btn">Delete</button>
+            </div>
           </li>
         ))}
       </ul>
     </div>
   );
-};
+}
 
 export default TodoApp;
